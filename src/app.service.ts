@@ -62,7 +62,7 @@ export class AppService {
 
   async runAlert(message: string) {
     const sns = SNSPublisher();
-    await sns.publish(message);
+    return sns.publish(message);
   }
 
   getAlertConfig() {

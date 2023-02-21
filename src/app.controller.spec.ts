@@ -28,5 +28,23 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Hello World!');
       done();
     });
+
+    it('should run an alert', async () => {
+      const resp = await appController.runAlert({
+        message: 'test alert app controller',
+      });
+      expect(resp).toBeTruthy();
+    });
+
+    it('should fail validation on run alert', async () => {
+      await appController
+        .runAlert({})
+        .then((d) => {
+          throw 'test failed';
+        })
+        .catch((err) => {
+          expect(err).toBeTruthy();
+        });
+    });
   });
 });

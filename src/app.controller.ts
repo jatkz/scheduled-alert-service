@@ -22,12 +22,16 @@ export class AppController {
     if (!body.message) {
       throw new HttpException('required: body message', HttpStatus.BAD_REQUEST);
     }
-    return this.appService.runAlert(body.message).catch((err) => {
-      console.error('controller runAlert', err, err.stack);
-      throw new HttpException(
-        'internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    return this.appService.runAlert(body.message).then((d) => {
+      if (d) {
+        return { message: 'success', id: d.MessageId };
+      } else {
+        // no return value means failure
+        throw new HttpException(
+          'internal server error',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     });
   }
 }
