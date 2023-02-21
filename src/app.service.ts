@@ -36,7 +36,7 @@ export class AppService {
   ) {}
 
   @Cron(alertCheck.cronExpression)
-  async AlertCheck() {
+  async alertCheck() {
     this.logger.debug('AlertCheck init ', alertCheck.cronExpression);
     for (const i of alertCheck.config) {
       const filter = {
@@ -51,14 +51,21 @@ export class AppService {
       if (found) {
         const numberOfDocs = await collection.countDocuments(filter);
 
-        const sns = SNSPublisher();
-
-        await sns.publish(
+        await this.runAlert(
           `Number of recent errors: ${numberOfDocs} \nexample: ${JSON.stringify(
             found,
           )}`,
         );
       }
     }
+  }
+
+  async runAlert(message: string) {
+    const sns = SNSPublisher();
+    await sns.publish(message);
+  }
+
+  getAlertConfig() {
+    return alertCheck;
   }
 }
