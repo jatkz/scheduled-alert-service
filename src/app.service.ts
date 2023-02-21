@@ -20,11 +20,17 @@ const ConfigSchema = Yup.array()
 
 type AlertConfig = Yup.InferType<typeof ConfigSchema>;
 
+const parseConfig = () => {
+  try {
+    return JSON.parse(process.env.ALERT_CONFIG || '[]');
+  } catch (err) {
+    throw 'alert config parse failed, make sure it is valid json';
+  }
+};
+
 const alertCheck: { cronExpression: string; config: AlertConfig } = {
   cronExpression: process.env.CRON_SCHEDULE || '0 * */1 * * *',
-  config:
-    ConfigSchema.validateSync(JSON.parse(process.env.ALERT_CONFIG || '[]')) ||
-    [],
+  config: ConfigSchema.validateSync(parseConfig()) || [],
 };
 
 @Injectable()
