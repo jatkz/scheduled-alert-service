@@ -1,9 +1,9 @@
 import { MongoClient } from 'mongodb';
 import { FactoryProvider } from '@nestjs/common';
 
-const conn_string = process.env.mongo_uri
-  ? 'mongodb://127.0.0.1:27017/?directConnection=true'
-  : process.env.mongo_uri;
+const conn_string = process.env.MONGO_URI
+  ? process.env.MONGO_URI
+  : 'mongodb://127.0.0.1:27017/?directConnection=true';
 
 export const DB_CLIENT = 'DB_CLIENT';
 

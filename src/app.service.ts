@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { MongoClient } from 'mongodb';
 import { DB_CLIENT } from './database.provider';
 import * as Yup from 'yup';
+import { SNSPublisher } from './sns-publisher';
 
 const ConfigSchema = Yup.array()
   .of(
@@ -20,8 +21,10 @@ const ConfigSchema = Yup.array()
 type AlertConfig = Yup.InferType<typeof ConfigSchema>;
 
 const alertCheck: { cronExpression: string; config: AlertConfig } = {
-  cronExpression: process.env.cronSchedule || '0 * */1 * * *',
-  config: ConfigSchema.validateSync(JSON.parse(process.env.config || '')) || [],
+  cronExpression: process.env.CRON_SCHEDULE || '0 * */1 * * *',
+  config:
+    ConfigSchema.validateSync(JSON.parse(process.env.ALERT_CONFIG || '[]')) ||
+    [],
 };
 
 @Injectable()
@@ -48,10 +51,13 @@ export class AppService {
       if (found) {
         const numberOfDocs = await collection.countDocuments(filter);
 
-        // todo AWS SMS service to send sms to phone
-        /**
-         * {numberOfDocs, found}
-         */
+        const sns = SNSPublisher();
+
+        await sns.publish(
+          `Number of recent errors: ${numberOfDocs} \nexample: ${JSON.stringify(
+            found,
+          )}`,
+        );
       }
     }
   }
